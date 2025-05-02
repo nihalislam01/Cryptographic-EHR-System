@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environment
+venv/
+.env/
+ENV/
+env/
+.venv/
+
+# VSCode settings
+.vscode/
+
+# PyCharm
+.idea/
+
+# MySQL client config (if you save it)
+*.cnf
+
+# Logs and local databases
+*.log
+*.sqlite3
+
+# Test coverage and reports
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.pytest_cache/
+
+# macOS files
+.DS_Store
+
+# dotenv and environment secrets
+.env
+.env.*
+/app/config.py
+
+# Flask cache and instance folders
+instance/
+__pycache__/
+*.db
+*.pkl
+
+# Gunicorn/PID files (for production servers)
+*.pid
