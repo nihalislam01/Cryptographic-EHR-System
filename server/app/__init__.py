@@ -1,7 +1,9 @@
 from flask import Flask
 from app.routes.authRoute import auth_bp
+from app.routes.recordRoute import record_bp
+from app.routes.userRoute import user_bp
 from app.models.user import db;
-from app.controllers.authController import bcrypt
+from app.utils.credentialHelper import bcrypt
 from flask_cors import CORS
 
 def create_app():
@@ -16,5 +18,7 @@ def create_app():
         db.create_all()
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(record_bp)
+    app.register_blueprint(user_bp)
 
     return app

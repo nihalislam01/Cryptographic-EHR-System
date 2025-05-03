@@ -1,10 +1,11 @@
 import { useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import AuthContext from "../contexts/authContext";
 
 export default function Login() {
 
+    const navigate = useNavigate();
     const { login } = useContext(AuthContext);
     const [formData, setFormData] = useState({
         email: '',
@@ -23,6 +24,7 @@ export default function Login() {
         e.preventDefault();
         try {
             await login(formData);
+            navigate("/dashboard");
         } catch (error) {
             console.error(error.response?.data || 'Login error');
         }

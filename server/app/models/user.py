@@ -10,6 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     salt = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(10), default='patient')
 
     def __repr__(self):
         return f'<User {self.username}>'

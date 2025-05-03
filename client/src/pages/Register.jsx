@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
 export default function Register() {
 
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -22,8 +23,8 @@ export default function Register() {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         try {
-          const response = await axios.post('/api/auth/login', credentials);
-          console.log(response?.data?.message);
+          const response = await axios.post('/api/auth/register', formData);
+          navigate('/');
         } catch (error) {
             console.log(error);
             console.error(error.response?.data || 'Register error');

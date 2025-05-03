@@ -1,13 +1,10 @@
 from flask import request, jsonify
-from flask_bcrypt import Bcrypt
-from app.models.user import User
-from app.models.user import db
+from app.models.user import User, db
 from app.utils.aes import encrypt, decrypt
-from app.utils.jwt_helper import generate_token
-import os
+from app.utils.jwtHelper import generate_token
 from app.utils.auth import jwt_required
-
-bcrypt = Bcrypt()
+from app.utils.credentialHelper import hash_credential, check_credential
+from app.utils.rsa import generate_keypair
 
 def register():
     data = request.get_json()
@@ -17,17 +14,14 @@ def register():
 
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'User already exists'}), 400
-    
-    salt = os.urandom(16).hex()
 
-    password = password + salt
-    password = bcrypt.generate_password_hash(password).decode('utf-8')
-
+    password, salt = hash_credential(password)
     username = encrypt(username)
-    salt = encrypt(salt)
     new_user = User(username=username, email=email, password=password, salt=salt)
     db.session.add(new_user)
     db.session.commit()
+
+    generate_keypair(new_user.id)
 
     return jsonify({'message': 'User registered successfully'}), 201
 
@@ -38,12 +32,9 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    userInfo = {"name": decrypt(user.username), "email": user.email}
+    userInfo = {"name": decrypt(user.username), "email": user.email, "role": user.role}
 
-    salt = decrypt(user.salt)
-    password = password + salt
-
-    if user and bcrypt.check_password_hash(user.password, password):
+    if user and check_credential(user.salt, user.password, password):
         token = generate_token(user.id)
         return jsonify({'message': 'Login successful', 'user': userInfo, 'token': token}), 200
 
@@ -57,6 +48,7 @@ def check_status(user_id):
 
     user_info = {
         "name": decrypt(user.username),
-        "email": user.email
+        "email": user.email,
+        "role": user.role,
     }
     return jsonify({'user': user_info}), 200

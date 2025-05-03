@@ -15,6 +15,13 @@ def encrypt(plain_text):
     ciphertext = cipher.encrypt(padded_data)
     return base64.b64encode(iv + ciphertext).decode('utf-8')
 
+def encrypt_pdf(pdf_bytes):
+    cipher = AES.new(key, AES.MODE_CBC)
+    iv = cipher.iv
+    padded_data = pad(pdf_bytes, AES.block_size)
+    ciphertext = cipher.encrypt(padded_data)
+    return iv + ciphertext
+
 
 def decrypt(ciphertext_base64):
     ciphertext_data = base64.b64decode(ciphertext_base64)
@@ -24,3 +31,10 @@ def decrypt(ciphertext_base64):
     padded_plaintext = cipher.decrypt(ciphertext)
     plaintext = unpad(padded_plaintext, AES.block_size).decode('utf-8')
     return plaintext
+
+def decrypt_pdf(encrypted_bytes):
+    iv = encrypted_bytes[:AES.block_size]
+    ciphertext = encrypted_bytes[AES.block_size:]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted = unpad(cipher.decrypt(ciphertext), AES.block_size)
+    return decrypted
