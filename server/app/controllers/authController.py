@@ -3,7 +3,9 @@ from flask_bcrypt import Bcrypt
 from app.models.user import User
 from app.models.user import db
 from app.utils.aes import encrypt, decrypt
+from app.utils.jwt_helper import generate_token
 import os
+from app.utils.auth import jwt_required
 
 bcrypt = Bcrypt()
 
@@ -42,6 +44,19 @@ def login():
     password = password + salt
 
     if user and bcrypt.check_password_hash(user.password, password):
-        return jsonify({'message': 'Login successful', 'user': userInfo}), 200
+        token = generate_token(user.id)
+        return jsonify({'message': 'Login successful', 'user': userInfo, 'token': token}), 200
 
     return jsonify({'message': 'Invalid credentials'}), 401
+
+@jwt_required
+def check_status(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    user_info = {
+        "name": decrypt(user.username),
+        "email": user.email
+    }
+    return jsonify({'user': user_info}), 200
