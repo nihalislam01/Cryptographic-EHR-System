@@ -1,8 +1,8 @@
 from flask import jsonify
 from app.models.user import User
-from app.utils.auth import jwt_required
+from app.utils.auth import authorized
 
-@jwt_required
+@authorized(['doctor'])
 def get_all_patients(user_id):
     try:
         patients = User.query.filter_by(role='patient').all()

@@ -4,7 +4,7 @@ from flask import jsonify, request, send_file
 from app.utils.aes import decrypt, decrypt_pdf, encrypt, encrypt_pdf
 from app.utils.rsa import sign_bytes, verify_signature
 from app.models.record import Record, db
-from app.utils.auth import jwt_required
+from app.utils.auth import authorized, jwt_required
 from app.models.user import User
 
 @jwt_required
@@ -31,7 +31,7 @@ def get_all_records(user_id):
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-@jwt_required
+@authorized(['doctor'])
 def upload_record(user_id, patient_id):
     file = request.files['file']
     raw_pdf_data = file.read()

@@ -31,6 +31,8 @@ def login():
     password = data.get('password')
 
     user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
 
     userInfo = {"name": decrypt(user.username), "email": user.email, "role": user.role}
 
