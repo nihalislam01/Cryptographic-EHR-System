@@ -2,6 +2,7 @@ from functools import wraps
 from flask import request, jsonify
 from app.utils.jwtHelper import verify_token
 from app.models.user import User
+from app.utils.aes import aes_ecb_decrypt
 
 def jwt_required(f):
     @wraps(f)
@@ -34,7 +35,8 @@ def authorized(allowed_roles):
                 return jsonify({'message': 'Invalid or expired token'}), 401
 
             user = User.query.get(user_id)
-            if not user or user.role not in allowed_roles:
+            if not user or aes_ecb_decrypt(user.role) not in allowed_roles:
+                print(aes_ecb_decrypt(user.role))
                 return jsonify({'message': 'Unauthorized'}), 403
 
             return f(user_id=user_id, *args, **kwargs)

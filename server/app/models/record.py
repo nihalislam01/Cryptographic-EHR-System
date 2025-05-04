@@ -7,7 +7,7 @@ class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     encrypted_pdf = db.Column(db.LargeBinary, nullable=False)
-    insert_date = db.Column(db.DateTime, default=datetime.utcnow)
+    insert_date = db.Column(db.String(255), default=datetime.utcnow)
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     digital_signature = db.Column(db.LargeBinary, nullable=False)

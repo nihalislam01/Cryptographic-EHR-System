@@ -1,7 +1,7 @@
 from datetime import datetime
 import io
 from flask import jsonify, request, send_file
-from app.utils.aes import decrypt, decrypt_pdf, encrypt, encrypt_pdf
+from app.utils.aes import aes_ecb_decrypt, decrypt, decrypt_pdf, encrypt, encrypt_pdf
 from app.utils.rsa import sign_bytes, verify_signature
 from app.models.record import Record, db
 from app.utils.auth import authorized, jwt_required
@@ -13,7 +13,7 @@ def get_all_records(user_id):
         user = User.query.get(user_id)
         if not user:
             return jsonify({'message': 'User not found'}), 404
-        if user.role == 'patient':
+        if aes_ecb_decrypt(user.role) == 'patient':
             records = Record.query.filter_by(patient_id=user_id).all()
         else:
             records = Record.query.all()
@@ -22,7 +22,7 @@ def get_all_records(user_id):
             {
                 "id": record.id,
                 "pdf_name": decrypt(record.filename),
-                "insert_date": record.insert_date.strftime('%A, %Y-%m-%d'),
+                "insert_date": datetime.fromisoformat(decrypt(record.insert_date)).strftime('%A, %Y-%m-%d'),
                 "verified": verify_signature(record.doctor_id, record.encrypted_pdf, record.digital_signature),
             }
             for record in records
@@ -41,11 +41,12 @@ def upload_record(user_id, patient_id):
     encrypted_pdf = encrypt_pdf(raw_pdf_data)
 
     signature = sign_bytes(user_id, encrypted_pdf)
-
+    insert_date_str = datetime.now().isoformat()
+    encrypted_insert_date = encrypt(insert_date_str)
     record = Record(
         filename=encrypted_filename,
         encrypted_pdf=encrypted_pdf,
-        insert_date=datetime.now(),
+        insert_date=encrypted_insert_date,
         patient_id=patient_id,
         doctor_id=user_id,
         digital_signature=signature
